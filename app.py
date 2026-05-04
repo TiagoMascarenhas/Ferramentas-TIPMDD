@@ -1,10 +1,6 @@
 """
 Hub de Produtividade da TI PMDD
-app.py — Orquestrador principal. NÃO contém lógica de negócio.
-
-Para adicionar um novo módulo, basta criar um arquivo .py dentro de modulos/
-com as variáveis MODULE_NAME, MODULE_ICON, MODULE_CATEGORY, MODULE_DESC
-e a função render(). O menu é atualizado automaticamente.
+app.py - Orquestrador principal.
 """
 
 import streamlit as st
@@ -12,9 +8,6 @@ import importlib
 import pkgutil
 import modulos
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Configuração da página
-# ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Hub de Produtividade · TI PMDD",
     page_icon="🛡️",
@@ -22,9 +15,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CSS global
-# ─────────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 :root {
@@ -84,15 +74,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Descoberta automática de módulos
-# ─────────────────────────────────────────────────────────────────────────────
 def discover_modules() -> dict:
-    """
-    Varre o pacote `modulos/` e importa dinamicamente todo arquivo .py
-    que contenha MODULE_NAME e a função render().
-    Retorna dict { "Categoria||Label": module_object }
-    """
+    # Varre a pasta modulos/ e importa tudo dinamicamente
     found = {}
     for _finder, name, _ispkg in pkgutil.iter_modules(modulos.__path__, modulos.__name__ + "."):
         try:
@@ -108,9 +91,6 @@ def discover_modules() -> dict:
     return found
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Sidebar — navegação agrupada por categoria
-# ─────────────────────────────────────────────────────────────────────────────
 def build_sidebar(modules: dict):
     st.sidebar.markdown(
         "<div style='text-align:center;padding:0.5rem 0'>"
@@ -122,13 +102,11 @@ def build_sidebar(modules: dict):
     )
     st.sidebar.divider()
 
-    # Agrupar por categoria
     categories: dict = {}
     for key, mod in modules.items():
         cat, label = key.split("||", 1)
         categories.setdefault(cat, []).append((label, mod))
 
-    # Inicializa módulo ativo na primeira execução
     if "active_module" not in st.session_state and categories:
         first_cat  = sorted(categories.keys())[0]
         first_item = sorted(categories[first_cat], key=lambda x: x[0])[0]
@@ -147,7 +125,6 @@ def build_sidebar(modules: dict):
             if st.session_state.get("active_module") == label:
                 selected_mod = mod
 
-    # Fallback: resolve módulo ativo a partir do session_state
     if selected_mod is None and "active_module" in st.session_state:
         active_label = st.session_state["active_module"]
         for key, mod in modules.items():
@@ -161,9 +138,6 @@ def build_sidebar(modules: dict):
     return selected_mod
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Header da ferramenta ativa
-# ─────────────────────────────────────────────────────────────────────────────
 def render_header(mod=None):
     if mod:
         name = getattr(mod, "MODULE_NAME", "Ferramenta")
@@ -185,9 +159,6 @@ def render_header(mod=None):
     """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Footer fixo
-# ─────────────────────────────────────────────────────────────────────────────
 def render_footer():
     st.markdown(
         '<div class="footer-bar">Desenvolvido pela TI PMDD — 2026</div>',
@@ -195,15 +166,12 @@ def render_footer():
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Tela inicial (vitrine de ferramentas)
-# ─────────────────────────────────────────────────────────────────────────────
 def render_home(modules: dict):
     st.markdown("### 🗂️ Ferramentas disponíveis")
     st.markdown("Clique em qualquer item na **barra lateral** para acessar a ferramenta.")
     st.markdown("---")
 
-    categories: dict = {}
+    categories = {}
     for key, mod in modules.items():
         cat, label = key.split("||", 1)
         categories.setdefault(cat, []).append((label, mod))
@@ -218,9 +186,6 @@ def render_home(modules: dict):
         st.markdown("")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Ponto de entrada
-# ─────────────────────────────────────────────────────────────────────────────
 def main():
     modules  = discover_modules()
     selected = build_sidebar(modules)
@@ -242,3 +207,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
