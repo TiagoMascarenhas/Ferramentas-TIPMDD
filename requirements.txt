@@ -1,0 +1,7 @@
+# Hub de Produtividade TI PMDD — Dependências
+streamlit>=1.35.0
+Pillow>=10.0.0
+pypdf>=4.0.0
+pandas>=2.0.0
+openpyxl>=3.1.0
+xlrd>=2.0.1
