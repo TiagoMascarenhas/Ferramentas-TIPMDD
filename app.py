@@ -134,6 +134,16 @@ def build_sidebar(modules: dict):
                 break
 
     st.sidebar.divider()
+
+    # ── Botão de reset do módulo ativo ────────────────────────────────────────
+    if st.sidebar.button("🔄  Nova operação", use_container_width=True,
+                         help="Limpa os campos e reinicia a ferramenta atual"):
+        # Remove todas as chaves do session_state EXCETO active_module
+        keys_to_delete = [k for k in st.session_state if k != "active_module"]
+        for k in keys_to_delete:
+            del st.session_state[k]
+        st.rerun()
+
     st.sidebar.caption("v1.1.0 · 2026 · TI PMDD")
     return selected_mod
 
@@ -207,4 +217,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
