@@ -1,11 +1,9 @@
 # 🛡️ Hub de Produtividade — TI PMDD
-
 Suíte de ferramentas de produtividade para escritório, desenvolvida pela TI PMDD.
 
 ---
 
 ## 📁 Estrutura do projeto
-
 ```
 hub_pmdd/
 │
@@ -52,15 +50,38 @@ streamlit run app.py
 
 ---
 
+## 🖥️ Executar em servidor (manter ativo após fechar o terminal)
+
+Ao rodar via SSH (ex: PuTTY), encerrar a sessão mata o processo. Use `nohup` para manter o app rodando em segundo plano:
+
+```bash
+nohup streamlit run app.py > streamlit.log 2>&1 &
+```
+
+O terminal retorna um PID e fica liberado. O app continua rodando mesmo após fechar a conexão.
+
+**Comandos úteis:**
+
+```bash
+# Verificar se está rodando
+ps aux | grep streamlit
+
+# Acompanhar os logs em tempo real
+tail -f streamlit.log
+
+# Encerrar o processo (substitua <PID> pelo número retornado)
+kill <PID>
+```
+
+---
+
 ## ➕ Como adicionar um novo módulo
 
 1. Crie um arquivo `.py` dentro de `modulos/` — ex: `modulos/meu_modulo.py`
-
 2. O arquivo **deve** conter as seguintes variáveis e a função `render()`:
 
 ```python
 # modulos/meu_modulo.py
-
 MODULE_NAME     = "Nome da Ferramenta"       # Exibido no menu e no header
 MODULE_ICON     = "🔧"                        # Emoji exibido no menu
 MODULE_CATEGORY = "🛠️ Minha Categoria"        # Agrupa ferramentas no menu lateral
@@ -73,7 +94,6 @@ def render():
 ```
 
 3. **Reinicie o Streamlit** (`Ctrl+C` e `streamlit run app.py`).
-
 4. O módulo aparecerá automaticamente no menu lateral, agrupado pela categoria definida.
 
 > ⚠️ **Sem `MODULE_NAME` ou sem `def render()`** → o arquivo é silenciosamente ignorado pelo orquestrador.
