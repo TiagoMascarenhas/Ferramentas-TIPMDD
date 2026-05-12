@@ -107,6 +107,9 @@ def build_sidebar(modules: dict):
         cat, label = key.split("||", 1)
         categories.setdefault(cat, []).append((label, mod))
 
+    if "_run" not in st.session_state:
+        st.session_state["_run"] = 0
+
     if "active_module" not in st.session_state and categories:
         first_cat  = sorted(categories.keys())[0]
         first_item = sorted(categories[first_cat], key=lambda x: x[0])[0]
@@ -134,16 +137,6 @@ def build_sidebar(modules: dict):
                 break
 
     st.sidebar.divider()
-
-    # ── Botão de reset do módulo ativo ────────────────────────────────────────
-    if st.sidebar.button("🔄  Nova operação", use_container_width=True,
-                         help="Limpa os campos e reinicia a ferramenta atual"):
-        # Remove todas as chaves do session_state EXCETO active_module
-        keys_to_delete = [k for k in st.session_state if k != "active_module"]
-        for k in keys_to_delete:
-            del st.session_state[k]
-        st.rerun()
-
     st.sidebar.caption("v1.1.0 · 2026 · TI PMDD")
     return selected_mod
 
@@ -196,6 +189,18 @@ def render_home(modules: dict):
         st.markdown("")
 
 
+
+@st.dialog("🔄 Nova operação")
+def _dialog_nova_operacao():
+    st.write("Deseja limpar todos os campos e começar uma nova operação?")
+    col1, col2 = st.columns(2)
+    if col1.button("✅ Sim, reiniciar", use_container_width=True, type="primary"):
+        st.session_state["_run"] = st.session_state.get("_run", 0) + 1
+        st.rerun()
+    if col2.button("❌ Não, continuar", use_container_width=True):
+        st.rerun()
+
+
 def main():
     modules  = discover_modules()
     selected = build_sidebar(modules)
@@ -203,6 +208,12 @@ def main():
     render_header(selected)
 
     if selected:
+        # Botão Nova Operação — abre modal centralizado
+        col_btn, col_rest = st.columns([1, 5])
+        with col_btn:
+            if st.button("🔄 Nova operação", use_container_width=True, help="Reinicia a ferramenta atual"):
+                _dialog_nova_operacao()
+
         try:
             selected.render()
         except Exception as exc:
